@@ -2,6 +2,8 @@ import os
 import sys
 import subprocess
 
+flags = ["o", "i", "c"]
+
 def getArg(flag, args):
     if flag not in args: return []
 
@@ -10,7 +12,7 @@ def getArg(flag, args):
     while match[0] != flag: match = match[1:]
 
     # trim match to the next flag
-    isFlag = lambda arg: len(arg) == 2 and arg[0] == "-"
+    isFlag = lambda arg: len(arg) == 2 and arg[0] == "-" and arg[1] in flags
     match = match[1:]
     final = []
     while not match == [] and not isFlag(match[0]): 
@@ -21,6 +23,7 @@ def getArg(flag, args):
 def execute(dirName, cmd):
     path = os.path.abspath(dirName)
     cwd = os.getcwd()
+    cmd = cmd.replace("%N", os.path.basename(path))
     try:
         os.chdir(path)
         os.system(cmd)
@@ -37,6 +40,7 @@ if len(sys.argv) == 1:
     print("For example, if the current working directory contains many individual git\n" +
           "repositories and one non-git directory, to pull on each repository: \n\t" +
           "%s -c git pull -i <non-git dir>" % sys.argv[0]) 
+    print("Including %N within a command will replace %N with the name of the current directory")
 
 # Parse the command and directories to prioritize/ignore from the flags
 get = lambda flag: getArg(flag, sys.argv)
