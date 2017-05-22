@@ -18,3 +18,24 @@ $ mapc -o dependencyA dependencyB -c "git pull && mvn clean install"
 which _maps_ the function `git pull && mvn clean install` across each directory within the working dir, with the optional `-o` parameter to indicate that the function should first be performed within the `dependencyA` directory, then `dependencyB`, and finally the rest.
 
 There's also a `-i` flag to exclude directories from the function.
+
+# Usage
+
+```
+matthew@inspiron:~$ python mapc.py
+Maps a command across directories within the working directory.
+Usage:
+    mapc.py -c <command>
+
+Options
+    -o dirs ... Directories for which the command will be executed first, in the order specified.
+    -i dirs ... Directories which will be ignored.
+    -O dirs ... The ONLY directories for which the command will be executed, in order. Supercedes -o but takes -i into account.
+    -c command  The command to execute within each directory.
+
+For example, if the current working directory contains many individual git
+repositories and one non-git directory, to pull on each repository: 
+    mapc.py -c git pull -i <non-git dir>
+Including %N within a command will replace %N with the name of the current directory
+Any directories listed in .mapcignore will be ignored.
+```
