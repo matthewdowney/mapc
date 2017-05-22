@@ -1,3 +1,5 @@
+from collections import OrderedDict
+from fnmatch import fnmatch
 import os
 import sys
 import subprocess
@@ -19,6 +21,20 @@ def getArg(flag, args):
         final.append(match[0])
         match = match[1:]
     return final
+
+def get_always_ignored():
+    if ".mapcignore" in os.listdir(os.getcwd()):
+        with open(".mapcignore") as f:
+            return [l.strip() for l in f.readlines()]
+    else:
+        return []
+
+def expand_patterns(file_patterns):
+    candidates = os.listdir(os.getcwd())
+    expanded = []
+    for pattern in file_patterns:
+        expanded = expanded + filter(lambda dir_name: fnmatch(dir_name, pattern), candidates)
+    return OrderedDict((x,True) for x in expanded).keys() # Remove duplicates but preserve order
 
 def execute(dirName, cmd):
     path = os.path.abspath(dirName)
@@ -42,13 +58,19 @@ if len(sys.argv) == 1:
           "repositories and one non-git directory, to pull on each repository: \n\t" +
           "%s -c git pull -i <non-git dir>" % sys.argv[0]) 
     print("Including %N within a command will replace %N with the name of the current directory")
+    print("Any directories listed in .mapcignore will be ignored.")
 
 # Parse the command and directories to prioritize/ignore from the flags
 get = lambda flag: getArg(flag, sys.argv)
 only = get("-O")
 ordered = get("-o")
-ignores = get("-i")
+ignores = get("-i") + get_always_ignored()
 command = " ".join(get("-c"))
+
+# Expand any unix pattern name file matching & remove duplicates
+only = expand_patterns(only)
+ordered = expand_patterns(ordered)
+ignores = expand_patterns(ignores)
 
 # Map relative directories -> abspaths
 only = map(os.path.abspath, only)
