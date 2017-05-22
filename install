@@ -3,28 +3,23 @@ if [ -d "/opt/mapc" ]; then
 	echo "mapc is already installed, overwrite? This will overwrite /opt/mapc [Y/N]:"
 	read YN
 	if [ $YN == "y" -o $YN == "Y" ]; then
-		echo "rm -rf /opt/mapc"
 		rm -rf /opt/mapc
 	else
 		exit
 	fi
 fi
 if [ -h "/usr/bin/mapc" ]; then
-	echo "rm /usr/bin/mapc"
+    set -x
 	rm /usr/bin/mapc
+    set +x
 fi
-echo "mkdir /opt/mapc"
+
+echo "Executing..."
+set -x
+
 mkdir /opt/mapc
-
-echo "cp mapc.py /opt/mapc/mapc.py"
 cp mapc.py /opt/mapc/mapc.py
-
-echo "cp mapc.sh /opt/mapc/mapc.sh"
 cp mapc.sh /opt/mapc/mapc.sh
-
-echo "chmod +x /opt/mapc/mapc.sh"
 chmod +x /opt/mapc/mapc.sh
-
-echo "ln -s /opt/mapc/mapc.sh /usr/bin/mapc"
 ln -s /opt/mapc/mapc.sh /usr/bin/mapc
 
